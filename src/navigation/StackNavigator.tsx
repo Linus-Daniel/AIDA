@@ -8,7 +8,6 @@ import Login from "../screens/auth/login";
 import Register from "../screens/auth/register";
 import ChatScreen from "../screens/chat";
 import ArticlesDetails from "@/screens/Articles/articlesdetals";
-import ChatBot from "@/screens/chatbot";
 
 const Stack = createStackNavigator();
 const StackNavigator = () => {
@@ -62,11 +61,11 @@ const StackNavigator = () => {
         name="Chat"
         component={ChatScreen}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
         options={{ headerShown: false }}
         name="ChatBot"
         component={ChatBot}
-        />
+        /> */}
         </Stack.Navigator>
   );
 };

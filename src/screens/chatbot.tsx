@@ -31,7 +31,6 @@
 //   };
 
 //   const getChatGPTResponse = async (userInput: string): Promise<string> => {
-//     const apiKey = 'sk-proj-7wIxt86OyaoOKLtswOjAT3BlbkFJFjytdRrEFsHEvtcHylaS';
 //     try {
 //       const response = await axios.post(
 //         'https://api.openai.com/v1/chat/completions',

@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import TopArticles from '../screens/Articles/toparticles';
 import NewArticles from '../screens/Articles/newarticles';
 import Header from '../components/header';

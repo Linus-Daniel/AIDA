@@ -1,34 +1,86 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, TextInput, TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
-import FontAwesome from "react-native-vector-icons/FontAwesome5"
-const ChatScreen = ({ route }) => {
-  const { chat } = route.params;
-  const [messages, setMessages] = useState(chat.messages);
-  const [inputText, setInputText] = useState('');
-  const navigation = useNavigation()
+import { useNavigation, RouteProp } from '@react-navigation/native';
+import io from 'socket.io-client';
+import FontAwesome from "react-native-vector-icons/FontAwesome5";
 
-  // Dummy data for participants (replace with actual data)
-  const participants = chat.participants.filter(participant => participant.name !== 'Linus Vandu Daniel');
+// Define types for route params
+type ChatScreenRouteProp = RouteProp<{ params: { chat: Chat } }, 'params'>;
+
+// Define types for chat and message objects
+interface Participant {
+  name: string;
+  profile_picture: any; // Adjust type based on your image source (e.g., string if it's a URL)
+}
+
+interface Message {
+  sender_name: string;
+  timestamp_ms: number;
+  content: string;
+  is_geoblocked_for_viewer: boolean;
+}
+
+interface Chat {
+  participants: Participant[];
+  messages: Message[];
+}
+
+interface ChatScreenProps {
+  route: ChatScreenRouteProp;
+}
+
+const ChatScreen: React.FC<ChatScreenProps> = ({ route }) => {
+  const { chat } = route.params;
+  const [messages, setMessages] = useState<Message[]>(chat.messages);
+  const [inputText, setInputText] = useState('');
+  const navigation = useNavigation();
+
+  // Replace with your Socket.IO server URL
+  const socket = io('http://your-socket-io-server-url', {
+    reconnection: true,
+    reconnectionAttempts: 5, // Number of attempts before giving up
+    reconnectionDelay: 1000, // Delay between reconnection attempts
+  });
+
+  useEffect(() => {
+    // Connect to Socket.IO server
+    socket.connect();
+
+    // Handle incoming messages
+    socket.on('message', (newMessage: Message) => {
+      // Append new message to the end of the array to maintain order
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+    });
+
+    // Clean up when component unmounts
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // Function to send a new message
   const sendMessage = () => {
     if (inputText.trim() === '') return;
 
-    const newMessage = {
+    const newMessage: Message = {
       sender_name: "Linus Vandu Daniel", // Assuming current user sends the message
       timestamp_ms: Date.now(),
       content: inputText,
       is_geoblocked_for_viewer: false,
     };
 
-    // Update the messages state by prepending the new message
-    setMessages([newMessage, ...messages]); // New message at the top
+    // Emit message event to server
+    socket.emit('message', newMessage);
+
+    // Update the input text and clear the input field
     setInputText('');
+
+    // Update the messages state by appending the new message
+    setMessages(prevMessages => [...prevMessages, newMessage]);
   };
 
   // Render each message in the FlatList
-  const renderMessage = ({ item }) => {
+  const renderMessage = ({ item }: { item: Message }) => {
     const isCurrentUser = item.sender_name === "Linus Vandu Daniel"; // Assuming Linus is the current user
     return (
       <View style={[styles.messageContainer, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
@@ -41,22 +93,23 @@ const ChatScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.participantsContainer}>
-        {participants.map((participant, index) => (
-          <View key={index} style={styles.participant}>
-            <TouchableOpacity onPress={navigation.goBack}>
-
-            <FontAwesome name="chevron-left" size={25} />
-            </TouchableOpacity>
-            <Image source={participant.profile_picture} style={styles.participantImage} />
-            <Text style={styles.participantName}>{participant.name}</Text>
-          </View>
-        ))}
+        {chat.participants
+          .filter(participant => participant.name !== "Linus Vandu Daniel") // Filter out current user's name
+          .map((participant, index) => (
+            <View key={index} style={styles.participant}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <FontAwesome name="chevron-left" size={25} />
+              </TouchableOpacity>
+              <Image source={participant.profile_picture} style={styles.participantImage} />
+              <Text style={styles.participantName}>{participant.name}</Text>
+            </View>
+          ))}
       </View>
       <FlatList
-        data={messages.reverse()} // Reverse the order of messages
+        data={messages.slice().reverse()} // Reverse copy of messages to maintain chronological order
         renderItem={renderMessage}
         keyExtractor={(item, index) => index.toString()}
-        inverted // Start from the bottom
+        inverted  // Display messages in reverse order (latest at the bottom)
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -92,8 +145,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 20,
-    paddingVertical:10,
-    gap:10,
+    paddingVertical: 10,
+    gap: 10,
   },
   participantImage: {
     width: 50,

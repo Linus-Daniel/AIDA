@@ -1,3 +1,4 @@
+
 import { UserProvider } from "@/context/userDataContext";
 import StackNavigator from "@/navigation/StackNavigator";
 import { NavigationContainer } from "@react-navigation/native";

@@ -7,17 +7,26 @@ import Profile from "../screens/profile";
 import Login from "../screens/auth/login";
 import Register from "../screens/auth/register";
 import ChatScreen from "../screens/chat";
+import ArticlesDetails from "@/screens/Articles/articlesdetals";
+import ChatBot from "@/screens/chatbot";
 
 const Stack = createStackNavigator();
 const StackNavigator = () => {
   return (
-      <Stack.Navigator initialRouteName="BottomTab">
+      <Stack.Navigator initialRouteName="Onboarding">
         <Stack.Screen
           options={{
             headerShown: false,
           }}
           name="Onboarding"
           component={Onboarding}
+        />
+         <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="ArticleDetails"
+          component={ArticlesDetails}
         />
         <Stack.Screen
           options={{
@@ -52,6 +61,11 @@ const StackNavigator = () => {
         options={{ headerShown: false }}
         name="Chat"
         component={ChatScreen}
+        />
+        <Stack.Screen
+        options={{ headerShown: false }}
+        name="ChatBot"
+        component={ChatBot}
         />
         </Stack.Navigator>
   );

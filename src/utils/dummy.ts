@@ -1,4 +1,4 @@
-const image = require("../assets/user.png");
+import image from '../assets/user.png'
 
 export const chats = [
     {

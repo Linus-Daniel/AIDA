@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../components/header";
 import { chats } from "../utils/dummy";
+import OnlineDoctors from "@/components/onlineDoctors";
 
 const Messages = () => {
   const { width, height } = Dimensions.get("window");
@@ -23,44 +24,11 @@ const Messages = () => {
 
   return (
     <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
-      <View>
-        <Header />
-        <Text style={{ fontWeight: 'bold', fontSize: 20, paddingHorizontal: 10, marginTop: 20 }}>
-          Emergency Consultancy with your Recommended Doctors
-        </Text>
-      </View>
-      {/* <ScrollView
-        style={{ marginBottom: 10 }}
-        horizontal
-      >
-        {prevChats.map((item, index) => (
-          <Pressable
-            key={index}
-            style={{
-              paddingBottom: 30,
-              alignItems: "center",
-              position: "relative",
-              marginHorizontal: 10,
-            }}
-            onPress={() => navigateToChat(index, item.name)}
-          >
-            <View>
-              <Image
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                }}
-                source={item.image } // Assuming item.image is a URI or require() path
-              />
-            </View>
-            <Text>{item.name}</Text>
-            <View style={{ position: "absolute", right: 0, top: 3, backgroundColor: "green", width: 10, height: 10, borderRadius: 5 }} />
-          </Pressable>
-        ))}
-      </ScrollView> */}
+      <OnlineDoctors />
+      
 
       <ScrollView style={{ marginBottom: 10, paddingHorizontal: 10 }}>
+
         <View>
         <ScrollView>
         {chats.map((chat, index) => {

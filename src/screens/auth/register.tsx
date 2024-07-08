@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,17 +10,20 @@ import {
   Alert,
   Platform,
   Keyboard,
+  StyleSheet,
 } from "react-native";
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AntIcon from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+SafeAreaView
 
-export default function Register() {
-  const [name, SetName] = useState("");
-  const [email, SetEmail] = useState("");
-  const [password, SetPassword] = useState("");
+interface RegisterProps {}
+
+const Register: React.FC<RegisterProps> = () => {
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const navigation = useNavigation();
 
   const averageKeyboardHeight = Platform.select({
@@ -28,11 +32,9 @@ export default function Register() {
     default: 0,
   });
 
-
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
-
 
   const handleRegister = () => {
     const url = "http://192.168.43.167:8000/register";
@@ -53,14 +55,14 @@ export default function Register() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return response.tsxon();
+        return response.json();
       })
       .then((responseData) => {
         console.log(responseData);
         Alert.alert("Registration successful");
-        SetName("");
-        SetEmail("");
-        SetPassword("");
+        setName("");
+        setEmail("");
+        setPassword("");
         navigation.replace("Login");
       })
       .catch((error) => {
@@ -72,84 +74,154 @@ export default function Register() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Pressable onPress={dismissKeyboard} style={{ flex: 1 }} className="items-center bg-white h-full">
-
-      <View
-        style={{
-          height: 300,
-          justifyContent: "center",
-        }}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 200}
       >
-        <Image
-          source={require("../../assets/logo.png")}
-          className="w-56 h-56 rounded-full"
-        />
-      </View>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={averageKeyboardHeight / 2}>
-        <View>
-          <Text className="text-[#041e42] text-3xl">Create an account</Text>
-          <Text>Start a Healthy journey with us</Text>
-        </View>
-        <View className="mb-[70px] mt-5">
-          <View className="bg-transparent border-[1px] my-[20px] items-center gap-[5px] flex-row py-[5px] px-1 w-[300px] rounded-md">
-            <Ionicons color={"gray"} name="person" size={24} />
-            <TextInput
-              style={{ flex: 1 }}
-              className="w-[inherit]"
-              value={name}
-              onChangeText={(name) => {
-                SetName(name);
-              }}
-              placeholder="Name"
+        <Pressable onPress={dismissKeyboard} style={styles.innerContainer}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../../assets/logo.png")}
+              style={styles.logo}
             />
           </View>
-          <View className="bg-transparent border-[1px] my-[20px] items-center gap-[5px] flex-row py-[5px] px-1 w-[300px] rounded-md">
-            <Ionicons color={"gray"} name="mail" size={24} />
-            <TextInput
-              style={{ flex: 1 }}
-              className="w-[inherit]"
-              value={email}
-              onChangeText={(email) => {
-                SetEmail(email);
-              }}
-              placeholder="Email"
-              />
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>Create an account</Text>
+            <Text>Start a Healthy journey with us</Text>
           </View>
-          <View className="bg-transparent border-[1px] items-center gap-[5px] flex-row w-[300px] py-[5px] px-1 rounded-md">
-            <AntIcon size={24} color={"gray"} name="lock1" />
-            <TextInput
-              className=""
-              value={password}
-              onChangeText={(password) => {
-                SetPassword(password);
-              }}
-              placeholder="Password"
+          <View style={styles.inputContainer}>
+            <View style={styles.inputWrapper}>
+              <Ionicons color={"gray"} name="person" size={24} />
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={(name) => setName(name)}
+                placeholder="Name"
               />
-          </View>
-          <View className="justify-between flex-row mt-[10px]">
-            <View>
-              <Text>Keep me logged in</Text>
             </View>
-            <Text className="text-blue-400 font-bold text-md">
-              Forgot password
-            </Text>
+            <View style={styles.inputWrapper}>
+              <Ionicons color={"gray"} name="mail" size={24} />
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(email) => setEmail(email)}
+                placeholder="Email"
+                keyboardType="email-address"
+              />
+            </View>
+            <View style={styles.inputWrapper}>
+              <AntIcon size={24} color={"gray"} name="lock1" />
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={(password) => setPassword(password)}
+                placeholder="Password"
+                secureTextEntry
+              />
+            </View>
+            <View style={styles.bottomRow}>
+              <Text>Keep me logged in</Text>
+              <Text style={styles.forgotPassword}>Forgot password</Text>
+            </View>
           </View>
-        </View>
-        <View className="items-center gap-4">
-          <TouchableOpacity
-            onPress={handleRegister}
-            className="rounded-md bg-[#F87413] w-full h-[50px] items-center justify-center"
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={handleRegister}
+              style={styles.button}
             >
-            <Text className="text-white font-bold text-xl">Sign up</Text>
-          </TouchableOpacity>
-          <Pressable onPress={() => navigation.navigate("Login")}>
-            <Text className="text-md text-blue-700">Login</Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
+              <Text style={styles.buttonText}>Sign up</Text>
+            </TouchableOpacity>
+            <Pressable onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.loginLink}>Login</Text>
             </Pressable>
+          </View>
+        </Pressable>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  innerContainer: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  logoContainer: {
+    height: 300,
+    justifyContent: "center",
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+  },
+  textContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  title: {
+    color: "#041e42",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  inputContainer: {
+    marginTop: 20,
+    marginBottom: 70,
+    alignItems: "center",
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    marginBottom: 20,
+    borderColor: "#ccc",
+    width: 300,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  input: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    width: 300,
+  },
+  forgotPassword: {
+    color: "blue",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  button: {
+    backgroundColor: "#F87413",
+    width: "80%",
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  loginLink: {
+    marginTop: 10,
+    color: "blue",
+  },
+});
+
+export default Register;
